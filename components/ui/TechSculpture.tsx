@@ -2,12 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-type Node = { x: number; y: number; vx: number; vy: number };
-
-const NODE_COUNT = 42;
-const CONNECT_DIST = 140;
-const ACCENT = { r: 192, g: 104, b: 60 }; // --accent
-
+// Slow-drifting orbital rings — smooth, never re-seeds on resize
 export default function TechSculpture() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -18,23 +13,15 @@ export default function TechSculpture() {
     if (!ctx) return;
 
     let raf = 0;
-    let nodes: Node[] = [];
+    let t = 0;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const resize = () => {
+    // Set canvas size once — no re-seeding on resize
+    const setSize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+      canvas.width  = canvas.offsetWidth  * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      // Re-seed nodes within new bounds
-      nodes = Array.from({ length: NODE_COUNT }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.28,
-        vy: (Math.random() - 0.5) * 0.28,
-      }));
     };
 
     const draw = () => {
@@ -42,50 +29,66 @@ export default function TechSculpture() {
       const h = canvas.offsetHeight;
       ctx.clearRect(0, 0, w, h);
 
-      if (!reduceMotion) {
-        for (const n of nodes) {
-          n.x += n.vx;
-          n.y += n.vy;
-          if (n.x < 0 || n.x > w) n.vx *= -1;
-          if (n.y < 0 || n.y > h) n.vy *= -1;
-        }
-      }
+      if (!reduceMotion) t += 0.003;
 
-      // Draw connections
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x;
-          const dy = nodes[i].y - nodes[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < CONNECT_DIST) {
-            const alpha = (1 - dist / CONNECT_DIST) * 0.28;
-            ctx.beginPath();
-            ctx.moveTo(nodes[i].x, nodes[i].y);
-            ctx.lineTo(nodes[j].x, nodes[j].y);
-            ctx.strokeStyle = `rgba(${ACCENT.r},${ACCENT.g},${ACCENT.b},${alpha})`;
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-          }
-        }
-      }
+      const cx = w * 0.5;
+      const cy = h * 0.46;
+      const base = Math.min(w, h) * 0.38;
 
-      // Draw nodes
-      for (const n of nodes) {
+      // Three slowly tilting ellipses at different depths
+      const rings = [
+        { rx: base * 1.05, ry: base * 0.28, tilt: t * 0.7,        alpha: 0.18 },
+        { rx: base * 0.72, ry: base * 0.20, tilt: t * 0.7 + 1.1,  alpha: 0.14 },
+        { rx: base * 0.42, ry: base * 0.12, tilt: t * 0.7 + 2.2,  alpha: 0.10 },
+      ];
+
+      for (const ring of rings) {
+        const cos = Math.cos(ring.tilt);
+        const sin = Math.sin(ring.tilt);
+
         ctx.beginPath();
-        ctx.arc(n.x, n.y, 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${ACCENT.r},${ACCENT.g},${ACCENT.b},0.5)`;
+        for (let i = 0; i <= 120; i++) {
+          const a = (i / 120) * Math.PI * 2;
+          const ex = ring.rx * Math.cos(a);
+          const ey = ring.ry * Math.sin(a);
+          const x = cx + ex * cos - ey * sin;
+          const y = cy + ex * sin + ey * cos;
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = `rgba(192, 104, 60, ${ring.alpha})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Subtle equator dot at the nearest point
+        const dotX = cx + ring.rx * cos;
+        const dotY = cy + ring.rx * sin;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(192, 104, 60, ${ring.alpha * 1.8})`;
         ctx.fill();
       }
+
+      // Faint centre cross-hair
+      ctx.globalAlpha = 0.07;
+      ctx.strokeStyle = "rgba(192,104,60,1)";
+      ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(cx - 12, cy); ctx.lineTo(cx + 12, cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy - 12); ctx.lineTo(cx, cy + 12); ctx.stroke();
+      ctx.globalAlpha = 1;
 
       raf = requestAnimationFrame(draw);
     };
 
-    resize();
+    setSize();
+    // Only resize canvas dimensions on actual window resize, never re-seed
+    const onResize = () => setSize();
+    window.addEventListener("resize", onResize);
     draw();
-    window.addEventListener("resize", resize);
+
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 

@@ -31,7 +31,7 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.65;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 a { color: inherit; }
 button, input, textarea, select { font: inherit; }
@@ -268,6 +268,15 @@ button, input, textarea, select { font: inherit; }
   object-fit: cover;
   object-position: 50% 15%;
   filter: saturate(0.72) contrast(1.05) brightness(0.84);
+}
+/* Center portrait when hero stacks to single column */
+@media (max-width: 900px) {
+  .hero-portrait {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+  }
 }
 .hero-visual::after {
   content: "";
@@ -665,7 +674,6 @@ footer p { color: rgba(241, 238, 231, 0.36); font-size: 10px; text-transform: up
     border-left: none;
     border-top: 1px solid var(--line-dark);
   }
-  .hero-portrait { width: 60%; }
   .visual-caption { left: 0; }
 
   .profile-section {
@@ -702,7 +710,6 @@ footer p { color: rgba(241, 238, 231, 0.36); font-size: 10px; text-transform: up
   .hero-actions { flex-direction: column; align-items: flex-start; gap: 18px; }
   .hero-visual { height: 340px; margin-top: 28px; }
   .visual-caption { display: none; }
-  .hero-portrait { width: 60%; }
   .profile-facts { grid-template-columns: 1fr; }
   .profile-facts div + div {
     border-left: none;
