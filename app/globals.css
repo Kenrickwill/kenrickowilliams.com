@@ -2,16 +2,17 @@
 
 /* ─── Design tokens ─────────────────────────────────────── */
 :root {
-  --font-sans: var(--font-sans, "Helvetica Neue", Helvetica, Arial, sans-serif);
-  --font-mono: var(--font-mono, "SFMono-Regular", Consolas, "Liberation Mono", monospace);
+  --font-sans:    var(--font-sans, ui-sans-serif, "Helvetica Neue", Arial, sans-serif);
+  --font-mono:    var(--font-mono, "SFMono-Regular", Consolas, "Liberation Mono", monospace);
+  --font-display: var(--font-display, ui-sans-serif, "Helvetica Neue", Arial, sans-serif);
 
   --ink:         #0b0d0f;
   --paper:       #f4f1eb;
   --paper-pure:  #faf8f4;
   --line-dark:   rgba(241, 238, 231, 0.14);
   --line-light:  rgba(11, 13, 15, 0.12);
-  --accent:      #c0683c;
-  --accent-deep: #8f4524;
+  --accent:      #1a7a82;
+  --accent-deep: #0f5560;
   --muted:       #6b6762;
   --muted-light: #8a8680;
 
@@ -20,6 +21,42 @@
   --nav-h:     80px;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Dark mode ──────────────────────────────────────────────
+   The site uses --ink for BOTH dark section backgrounds (hero,
+   nav, contact, footer) AND dark body text. A simple token
+   inversion would make those sections turn light. Instead, dark
+   mode only adjusts the adaptive body sections via explicit
+   class scoping on the elements that carry the light background.
+   The always-dark sections (hero, contact, footer, nav) are
+   unchanged since they already look correct in dark OS contexts.
+────────────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:       #111310;
+    --paper-pure:  #181a17;
+    --line-light:  rgba(228, 223, 214, 0.10);
+    --muted:       #9a9590;
+    --muted-light: #7a7570;
+  }
+  body { color: #dedad2; }
+  .profile-section,
+  .work-section,
+  .credentials-section {
+    color: #dedad2;
+  }
+  .profile-copy .lead { color: #dedad2; }
+  .profile-copy > p:not(.lead):not(.section-label) { color: var(--muted); }
+  .project h3, .credential strong { color: #dedad2; }
+  .profile-facts strong { color: #dedad2; }
+}
+:root[data-theme="dark"] {
+  --paper:       #111310;
+  --paper-pure:  #181a17;
+  --line-light:  rgba(228, 223, 214, 0.10);
+  --muted:       #9a9590;
+  --muted-light: #7a7570;
 }
 
 /* ─── Reset ─────────────────────────────────────────────── */
@@ -177,7 +214,7 @@ button, input, textarea, select { font: inherit; }
 /* ─── Hero ───────────────────────────────────────────────── */
 .hero {
   min-height: calc(100vh - var(--nav-h));
-  max-height: 880px;
+  max-height: 960px;
   padding: 80px var(--gutter) 64px;
   display: grid;
   grid-template-columns: 1.08fr 0.92fr;
@@ -206,11 +243,13 @@ button, input, textarea, select { font: inherit; }
 .eyebrow { color: var(--accent); margin-bottom: 26px; }
 
 .hero h1 {
+  font-family: var(--font-display);
   font-size: clamp(50px, 5vw, 76px);
   line-height: 1.01;
-  letter-spacing: -0.06em;
-  font-weight: 520;
+  letter-spacing: -0.05em;
+  font-weight: 600;
   max-width: 760px;
+  font-synthesis: none;
 }
 .hero-intro {
   max-width: 560px;
@@ -263,10 +302,10 @@ button, input, textarea, select { font: inherit; }
   z-index: 1;
   top: 0;
   right: 0;
-  width: 60%;
+  width: 52%;
   height: calc(100% - 40px);
   object-fit: cover;
-  object-position: 50% 15%;
+  object-position: 50% 10%;
   filter: saturate(0.72) contrast(1.05) brightness(0.84);
 }
 /* Center portrait when hero stacks to single column */
@@ -275,7 +314,22 @@ button, input, textarea, select { font: inherit; }
     right: auto;
     left: 50%;
     transform: translateX(-50%);
-    width: 70%;
+    width: 68%;
+  }
+}
+
+/* Medium breakpoint — 4-col project grid gets cramped 901-1100px */
+@media (max-width: 1100px) and (min-width: 901px) {
+  .project {
+    grid-template-columns: 44px 1.2fr 1fr;
+    gap: 28px;
+  }
+  .project-result {
+    grid-column: 2 / span 2;
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--line-light);
+    padding-top: 14px;
   }
 }
 .hero-visual::after {
@@ -285,7 +339,7 @@ button, input, textarea, select { font: inherit; }
   inset: 0 0 40px 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, var(--ink) 0%, rgba(11, 13, 15, 0.18) 36%, transparent 56%),
+    linear-gradient(90deg, var(--ink) 0%, rgba(11, 13, 15, 0.12) 26%, transparent 44%),
     linear-gradient(0deg, rgba(11, 13, 15, 0.45), transparent 26%);
 }
 .tech-sculpture {
@@ -295,7 +349,7 @@ button, input, textarea, select { font: inherit; }
   width: 100%;
   height: 100%;
   display: block;
-  opacity: 0.7;
+  opacity: 1;
 }
 .visual-caption {
   z-index: 3;
@@ -343,10 +397,12 @@ footer {
 .section-heading h2,
 .credentials-intro h2,
 .contact-copy h2 {
+  font-family: var(--font-display);
   font-size: clamp(38px, 4vw, 60px);
   line-height: 1.05;
-  letter-spacing: -0.055em;
-  font-weight: 520;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+  font-synthesis: none;
 }
 .profile-copy .lead {
   font-size: clamp(19px, 1.8vw, 25px);
@@ -432,10 +488,12 @@ footer {
   margin-bottom: 12px;
 }
 .project h3 {
+  font-family: var(--font-display);
   font-size: clamp(22px, 2vw, 32px);
-  font-weight: 530;
+  font-weight: 600;
   line-height: 1.18;
-  letter-spacing: -0.032em;
+  letter-spacing: -0.028em;
+  font-synthesis: none;
 }
 .project-description { color: var(--muted); font-size: 14px; line-height: 1.76; }
 .project-result {
@@ -473,6 +531,17 @@ footer {
   max-width: 520px;
   font-size: 15px;
 }
+.credentials-cta {
+  margin-top: 28px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.credentials-cta-link {
+  color: var(--accent);
+  text-decoration: none;
+  transition: opacity 0.18s ease;
+}
+.credentials-cta-link:hover { opacity: 0.72; }
 .credential-list { border-top: 1px solid var(--ink); }
 .credential {
   display: grid;
@@ -503,7 +572,7 @@ footer {
   padding-bottom: 88px;
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
-  gap: clamp(64px, 11vw, 160px);
+  gap: clamp(48px, 7vw, 96px);
   border-top: 1px solid var(--line-dark);
   color: var(--paper);
   position: relative;
@@ -708,6 +777,7 @@ footer p { color: rgba(241, 238, 231, 0.36); font-size: 10px; text-transform: up
   .hero { padding-top: 40px; }
   .hero h1 { font-size: clamp(34px, 10vw, 52px); }
   .hero-actions { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .text-link { padding: 10px 0; display: inline-block; }
   .hero-visual { height: 340px; margin-top: 28px; }
   .visual-caption { display: none; }
   .profile-facts { grid-template-columns: 1fr; }

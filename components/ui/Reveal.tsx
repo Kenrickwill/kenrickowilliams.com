@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Reveal({
   children,
@@ -12,8 +12,12 @@ export default function Reveal({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [armed, setArmed] = useState(false);
 
   useEffect(() => {
+    // Only apply hidden→visible animation after JS has hydrated.
+    // This keeps content visible on slow connections and no-JS.
+    setArmed(true);
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
@@ -31,7 +35,7 @@ export default function Reveal({
   }, [delay]);
 
   return (
-    <div ref={ref} className={`reveal ${className}`}>
+    <div ref={ref} className={armed ? `reveal ${className}` : className}>
       {children}
     </div>
   );

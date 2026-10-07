@@ -165,6 +165,10 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <p className="credentials-cta">
+            Open to senior security engineering roles and advisory work —{" "}
+            <a href="#contact" className="credentials-cta-link">let&apos;s talk ↗</a>
+          </p>
         </Reveal>
       </section>
 
@@ -191,7 +195,7 @@ export default function Home() {
       {/* ── Footer ── */}
       <footer>
         <a className="wordmark" href="#top">Kenrick Williams<span>.</span></a>
-        <p>Security engineering · Automation · Ownership</p>
+        <p>Built by Kenrick Williams · Atlanta, GA</p>
         <div className="social-links">
           <a
             href="https://www.linkedin.com/in/kenrick-williams-086247204/"

@@ -37,9 +37,9 @@ export default function TechSculpture() {
 
       // Three slowly tilting ellipses at different depths
       const rings = [
-        { rx: base * 1.05, ry: base * 0.28, tilt: t * 0.7,        alpha: 0.18 },
-        { rx: base * 0.72, ry: base * 0.20, tilt: t * 0.7 + 1.1,  alpha: 0.14 },
-        { rx: base * 0.42, ry: base * 0.12, tilt: t * 0.7 + 2.2,  alpha: 0.10 },
+        { rx: base * 1.05, ry: base * 0.28, tilt: t * 0.7,        alpha: 0.26 },
+        { rx: base * 0.72, ry: base * 0.20, tilt: t * 0.7 + 1.1,  alpha: 0.20 },
+        { rx: base * 0.42, ry: base * 0.12, tilt: t * 0.7 + 2.2,  alpha: 0.15 },
       ];
 
       for (const ring of rings) {
@@ -56,7 +56,7 @@ export default function TechSculpture() {
           i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
         }
         ctx.closePath();
-        ctx.strokeStyle = `rgba(192, 104, 60, ${ring.alpha})`;
+        ctx.strokeStyle = `rgba(26, 122, 130, ${ring.alpha})`;
         ctx.lineWidth = 1;
         ctx.stroke();
 
@@ -65,13 +65,13 @@ export default function TechSculpture() {
         const dotY = cy + ring.rx * sin;
         ctx.beginPath();
         ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(192, 104, 60, ${ring.alpha * 1.8})`;
+        ctx.fillStyle = `rgba(26, 122, 130, ${ring.alpha * 1.8})`;
         ctx.fill();
       }
 
       // Faint centre cross-hair
       ctx.globalAlpha = 0.07;
-      ctx.strokeStyle = "rgba(192,104,60,1)";
+      ctx.strokeStyle = "rgba(26,122,130,1)";
       ctx.lineWidth = 0.5;
       ctx.beginPath(); ctx.moveTo(cx - 12, cy); ctx.lineTo(cx + 12, cy); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(cx, cy - 12); ctx.lineTo(cx, cy + 12); ctx.stroke();
