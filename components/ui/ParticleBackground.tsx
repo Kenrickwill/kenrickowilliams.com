@@ -18,7 +18,7 @@ export default function ParticleBackground() {
     let raf = 0;
     let particles: Particle[] = [];
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const LINK = 150;
+    const LINK = 160;
 
     const resize = () => {
       const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -26,7 +26,7 @@ export default function ParticleBackground() {
       canvas.height = window.innerHeight * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const count = Math.min(Math.round((window.innerWidth * window.innerHeight) / 12000), 90);
+      const count = Math.min(Math.round((window.innerWidth * window.innerHeight) / 6500), 150);
       particles = Array.from({ length: count }, () => ({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
@@ -56,8 +56,8 @@ export default function ParticleBackground() {
           const dy = particles[i].y - particles[j].y;
           const d = Math.sqrt(dx * dx + dy * dy);
           if (d < LINK) {
-            ctx.strokeStyle = `rgba(26,122,130,${(1 - d / LINK) * 0.14})`;
-            ctx.lineWidth = 0.6;
+            ctx.strokeStyle = `rgba(26,122,130,${(1 - d / LINK) * 0.28})`;
+            ctx.lineWidth = 0.7;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -68,8 +68,8 @@ export default function ParticleBackground() {
 
       for (const p of particles) {
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(26,122,130,0.42)";
+        ctx.arc(p.x, p.y, 1.6, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(26,122,130,0.65)";
         ctx.fill();
       }
 
