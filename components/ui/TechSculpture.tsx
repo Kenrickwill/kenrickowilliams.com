@@ -37,9 +37,10 @@ export default function TechSculpture() {
 
       // Three slowly tilting ellipses at different depths
       const rings = [
-        { rx: base * 1.05, ry: base * 0.28, tilt: t * 0.7,        alpha: 0.26 },
-        { rx: base * 0.72, ry: base * 0.20, tilt: t * 0.7 + 1.1,  alpha: 0.20 },
-        { rx: base * 0.42, ry: base * 0.12, tilt: t * 0.7 + 2.2,  alpha: 0.15 },
+        { rx: base * 1.12, ry: base * 0.30, tilt: t * 0.65,       alpha: 0.38, lw: 1.2 },
+        { rx: base * 0.80, ry: base * 0.22, tilt: t * 0.65 + 1.0, alpha: 0.28, lw: 1.0 },
+        { rx: base * 0.50, ry: base * 0.14, tilt: t * 0.65 + 2.1, alpha: 0.20, lw: 0.8 },
+        { rx: base * 0.26, ry: base * 0.08, tilt: t * 0.65 + 3.2, alpha: 0.14, lw: 0.6 },
       ];
 
       for (const ring of rings) {
@@ -57,7 +58,7 @@ export default function TechSculpture() {
         }
         ctx.closePath();
         ctx.strokeStyle = `rgba(26, 122, 130, ${ring.alpha})`;
-        ctx.lineWidth = 1;
+        ctx.lineWidth = ring.lw;
         ctx.stroke();
 
         // Subtle equator dot at the nearest point
