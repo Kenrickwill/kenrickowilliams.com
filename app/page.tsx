@@ -35,7 +35,7 @@ const projects = [
 const credentials = [
   ["CompTIA Security+", "Cybersecurity foundation"],
   ["Microsoft AZ-900 + SC-900", "Cloud and security fundamentals"],
-  ["AWS Cloud Practitioner", "Cloud foundation"],
+  ["B.S. Computer Science & Cybersecurity", "Columbus State University"],
   ["Splunk Power User", "Search, analytics, and dashboards"],
 ];
 
