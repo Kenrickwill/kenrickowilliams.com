@@ -2,7 +2,19 @@
 
 import { useEffect, useRef } from "react";
 
-// Slow-drifting orbital rings — smooth, never re-seeds on resize
+interface FlowParticle {
+  x: number; y: number;
+  life: number; maxLife: number;
+  speed: number;
+}
+
+function noise(x: number, y: number, t: number) {
+  return (
+    Math.sin(x * 0.013 + t) * Math.cos(y * 0.009 + t * 0.7) +
+    Math.sin(x * 0.006 + y * 0.008 + t * 1.1) * 0.5
+  );
+}
+
 export default function TechSculpture() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -14,77 +26,73 @@ export default function TechSculpture() {
 
     let raf = 0;
     let t = 0;
+    let particles: FlowParticle[] = [];
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Set canvas size once — no re-seeding on resize
     const setSize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width  = canvas.offsetWidth  * dpr;
+      canvas.width = canvas.offsetWidth * dpr;
       canvas.height = canvas.offsetHeight * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
+    const initParticles = () => {
+      const W = canvas.offsetWidth, H = canvas.offsetHeight;
+      const count = Math.round((W * H) / 2000);
+      particles = Array.from({ length: count }, () => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        life: Math.random() * 160,
+        maxLife: 160 + Math.random() * 120,
+        speed: 0.5 + Math.random() * 0.7,
+      }));
+    };
+
     const draw = () => {
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      ctx.clearRect(0, 0, w, h);
+      const W = canvas.offsetWidth, H = canvas.offsetHeight;
 
-      if (!reduceMotion) t += 0.003;
+      // Slow fade creates trail effect
+      ctx.fillStyle = "rgba(11,13,15,0.06)";
+      ctx.fillRect(0, 0, W, H);
 
-      const cx = w * 0.5;
-      const cy = h * 0.46;
-      const base = Math.min(w, h) * 0.38;
+      if (!reduceMotion) t += 0.004;
 
-      // Three slowly tilting ellipses at different depths
-      const rings = [
-        { rx: base * 1.12, ry: base * 0.30, tilt: t * 0.65,       alpha: 0.38, lw: 1.2 },
-        { rx: base * 0.80, ry: base * 0.22, tilt: t * 0.65 + 1.0, alpha: 0.28, lw: 1.0 },
-        { rx: base * 0.50, ry: base * 0.14, tilt: t * 0.65 + 2.1, alpha: 0.20, lw: 0.8 },
-        { rx: base * 0.26, ry: base * 0.08, tilt: t * 0.65 + 3.2, alpha: 0.14, lw: 0.6 },
-      ];
+      for (const p of particles) {
+        const angle = noise(p.x, p.y, t) * Math.PI * 2;
+        const px = p.x, py = p.y;
+        p.x += Math.cos(angle) * p.speed;
+        p.y += Math.sin(angle) * p.speed;
+        p.life++;
 
-      for (const ring of rings) {
-        const cos = Math.cos(ring.tilt);
-        const sin = Math.sin(ring.tilt);
+        const alpha =
+          Math.min(p.life / 40, 1) * (1 - p.life / p.maxLife) * 0.55;
 
+        ctx.strokeStyle = `rgba(26,122,130,${alpha})`;
+        ctx.lineWidth = 0.9;
         ctx.beginPath();
-        for (let i = 0; i <= 120; i++) {
-          const a = (i / 120) * Math.PI * 2;
-          const ex = ring.rx * Math.cos(a);
-          const ey = ring.ry * Math.sin(a);
-          const x = cx + ex * cos - ey * sin;
-          const y = cy + ex * sin + ey * cos;
-          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.strokeStyle = `rgba(26, 122, 130, ${ring.alpha})`;
-        ctx.lineWidth = ring.lw;
+        ctx.moveTo(px, py);
+        ctx.lineTo(p.x, p.y);
         ctx.stroke();
 
-        // Subtle equator dot at the nearest point
-        const dotX = cx + ring.rx * cos;
-        const dotY = cy + ring.rx * sin;
-        ctx.beginPath();
-        ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(26, 122, 130, ${ring.alpha * 1.8})`;
-        ctx.fill();
+        if (
+          p.life > p.maxLife ||
+          p.x < -5 || p.x > W + 5 ||
+          p.y < -5 || p.y > H + 5
+        ) {
+          p.x = Math.random() * W;
+          p.y = Math.random() * H;
+          p.life = 0;
+          p.maxLife = 160 + Math.random() * 120;
+        }
       }
-
-      // Faint centre cross-hair
-      ctx.globalAlpha = 0.07;
-      ctx.strokeStyle = "rgba(26,122,130,1)";
-      ctx.lineWidth = 0.5;
-      ctx.beginPath(); ctx.moveTo(cx - 12, cy); ctx.lineTo(cx + 12, cy); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx, cy - 12); ctx.lineTo(cx, cy + 12); ctx.stroke();
-      ctx.globalAlpha = 1;
 
       raf = requestAnimationFrame(draw);
     };
 
-    setSize();
-    // Only resize canvas dimensions on actual window resize, never re-seed
-    const onResize = () => setSize();
+    const onResize = () => { setSize(); initParticles(); };
     window.addEventListener("resize", onResize);
+    setSize();
+    initParticles();
     draw();
 
     return () => {

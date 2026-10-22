@@ -1,5 +1,6 @@
 import Image from "next/image";
 import TechSculpture from "@/components/ui/TechSculpture";
+import ParticleBackground from "@/components/ui/ParticleBackground";
 import ContactForm from "@/components/sections/ContactForm";
 import Header from "@/components/layout/Header";
 import Reveal from "@/components/ui/Reveal";
@@ -41,6 +42,7 @@ const credentials = [
 export default function Home() {
   return (
     <main>
+      <ParticleBackground />
       <Header />
 
       {/* ── Hero ── */}
