@@ -28,6 +28,8 @@ export default function TechSculpture() {
     let t = 0;
     let particles: FlowParticle[] = [];
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let lastW = 0;
+    let resizeTimer: ReturnType<typeof setTimeout>;
 
     const setSize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -89,14 +91,25 @@ export default function TechSculpture() {
       raf = requestAnimationFrame(draw);
     };
 
-    const onResize = () => { setSize(); initParticles(); };
+    const onResize = () => {
+      // Only rebuild particles on real width changes (not iOS chrome show/hide)
+      const newW = canvas.offsetWidth;
+      setSize();
+      if (newW !== lastW) {
+        lastW = newW;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(initParticles, 300);
+      }
+    };
     window.addEventListener("resize", onResize);
+    lastW = canvas.offsetWidth;
     setSize();
     initParticles();
     draw();
 
     return () => {
       cancelAnimationFrame(raf);
+      clearTimeout(resizeTimer);
       window.removeEventListener("resize", onResize);
     };
   }, []);

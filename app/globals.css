@@ -82,14 +82,14 @@
 
 /* ─── Reset ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; moz-osx-font-smoothing: grayscale; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; moz-osx-font-smoothing: grayscale; overflow-x: hidden; }
 body {
   background: transparent;
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.65;
-  overflow-x: clip;
+  overflow-x: hidden;
 }
 a { color: inherit; }
 button, input, textarea, select { font: inherit; }

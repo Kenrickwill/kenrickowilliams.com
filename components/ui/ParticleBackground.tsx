@@ -19,24 +19,48 @@ export default function ParticleBackground() {
     let particles: Particle[] = [];
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const LINK = 160;
+    let W = 0, H = 0;
+    let resizeTimer: ReturnType<typeof setTimeout>;
 
-    const resize = () => {
+    const applyResize = () => {
       const dpr = Math.min(devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      const count = Math.min(Math.round((window.innerWidth * window.innerHeight) / 6500), 150);
-      particles = Array.from({ length: count }, () => ({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-      }));
     };
 
+    const resize = () => {
+      // Debounce: on iOS the browser chrome hides/shows during scroll,
+      // firing resize continuously. Only rebuild particles after scrolling stops.
+      const newW = window.innerWidth;
+      const widthChanged = newW !== W;
+      applyResize();
+      if (widthChanged) {
+        // Actual orientation/width change — rebuild particles
+        const count = Math.min(Math.round((W * H) / 6500), 150);
+        particles = Array.from({ length: count }, () => ({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+        }));
+      }
+      clearTimeout(resizeTimer);
+    };
+
+    // Initial setup
+    applyResize();
+    const count = Math.min(Math.round((W * H) / 6500), 150);
+    particles = Array.from({ length: count }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+    }));
+
     const draw = () => {
-      const W = window.innerWidth, H = window.innerHeight;
       ctx.fillStyle = "#0b0d0f";
       ctx.fillRect(0, 0, W, H);
 
@@ -76,12 +100,12 @@ export default function ParticleBackground() {
       raf = requestAnimationFrame(draw);
     };
 
-    resize();
     window.addEventListener("resize", resize);
     draw();
 
     return () => {
       cancelAnimationFrame(raf);
+      clearTimeout(resizeTimer);
       window.removeEventListener("resize", resize);
     };
   }, []);
