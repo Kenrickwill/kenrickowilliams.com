@@ -119,11 +119,13 @@ button, input, textarea, select { font: inherit; }
   top: 0;
   z-index: 100;
   width: 100%;
-  height: var(--nav-h);
+  height: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  padding: 0 var(--gutter);
+  padding: 0 var(--gutter) 0;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: 0;
   color: var(--paper);
   background: var(--ink);
   border-bottom: 1px solid var(--line-dark);
@@ -200,7 +202,7 @@ button, input, textarea, select { font: inherit; }
 .mobile-drawer {
   display: none;
   position: fixed;
-  top: var(--nav-h);
+  top: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
   left: 0;
   right: 0;
   z-index: 99;
